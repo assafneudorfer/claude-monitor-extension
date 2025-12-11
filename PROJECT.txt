@@ -1,0 +1,132 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                      CLAUDE MONITOR - SIMPLE EDITION                         ║
+║                           Architecture Overview                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ HOW IT WORKS                                                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  Claude Code Hook          HTTP Server           Chrome Extension
+  ┌──────────────┐         ┌──────────┐          ┌──────────────┐
+  │              │  curl   │          │  poll    │              │
+  │  Hook Script │────────>│  Python  │<─────────│  Background  │
+  │              │  POST   │  Server  │  every   │   Worker     │
+  │              │         │          │  2 sec   │              │
+  └──────────────┘         └──────────┘          └──────┬───────┘
+                                                         │
+                                                         ▼
+                                                  Chrome Notification
+                                                  ┌────────────────┐
+                                                  │ Task Complete! │
+                                                  │ Build finished │
+                                                  └────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ FILE STRUCTURE                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  claude-monitor-extension/
+  │
+  ├── server/
+  │   └── server.py              # 100-line HTTP server
+  │                               # Receives curl POST requests
+  │                               # Stores notifications in memory
+  │                               # Serves them via GET
+  │
+  ├── extension/
+  │   ├── manifest.json           # Chrome extension config
+  │   ├── background.js           # Polls server every 2 seconds
+  │   └── popup/
+  │       ├── popup.html          # Shows notification history
+  │       └── popup.js            # UI logic
+  │
+  ├── hooks/
+  │   ├── task_complete.sh        # Example: Success hook
+  │   ├── task_error.sh           # Example: Error hook
+  │   ├── file_changed.sh         # Example: File change hook
+  │   └── examples.sh             # Test all notification types
+  │
+  ├── README.md                   # Full documentation
+  └── QUICKSTART.md               # 2-minute setup guide
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ QUICK START                                                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  1. Start server:
+     python3 server/server.py
+
+  2. Load extension in Chrome:
+     chrome://extensions → Load unpacked → select 'extension' folder
+
+  3. Test:
+     cd hooks && ./examples.sh
+
+  4. Use in hooks:
+     curl -X POST http://127.0.0.1:8765 \
+       -H "Content-Type: application/json" \
+       -d '{"title":"Task Done","message":"Success!","priority":"success"}'
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ NOTIFICATION PRIORITIES                                                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  success  → Green notification   (Task complete, build success)
+  error    → Red notification     (Task failed, requires interaction)
+  warning  → Orange notification  (Warnings, deprecations)
+  info     → Blue notification    (General updates, file changes)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ WHY THIS DESIGN?                                                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  ✓ Simple       - No native messaging complexity
+  ✓ Portable     - Works on any OS with Python 3
+  ✓ Debuggable   - Everything visible in server logs
+  ✓ Flexible     - Use curl from any language/script
+  ✓ Fast         - 2-second polling, minimal overhead
+  ✓ Zero deps    - Pure Python stdlib, no packages needed
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ COMPONENTS                                                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  SERVER (Python)
+  • Simple HTTP server using stdlib
+  • Listens on 127.0.0.1:8765
+  • POST endpoint receives notifications from hooks
+  • GET endpoint serves notifications to extension
+  • Stores last 100 notifications in memory
+  • CORS enabled for Chrome extension
+
+  EXTENSION (JavaScript)
+  • Service worker polls server every 2 seconds
+  • Displays Chrome notifications when new data arrives
+  • Stores notification history in Chrome storage
+  • Popup UI shows history, stats, and connection status
+  • Auto-reconnects if server goes down
+
+  HOOKS (Bash)
+  • Example scripts showing how to send notifications
+  • Use curl to POST JSON to server
+  • Can be called from any Claude Code workflow
+  • Simple one-liners for quick integration
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ TOTAL COMPLEXITY                                                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  Lines of Code:
+  • server.py         ~100 lines
+  • background.js     ~150 lines
+  • popup.js          ~80 lines
+  • popup.html        ~80 lines
+  ────────────────────────────
+  TOTAL:              ~410 lines
+
+  That's it! No frameworks, no dependencies, just simple code.
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         Built for Simplicity ™                               ║
+╚══════════════════════════════════════════════════════════════════════════════╝

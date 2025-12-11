@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Monitor</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 400px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      color: #333;
+      background: #f5f5f5;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    .status.online .status-dot {
+      background: #4CAF50;
+    }
+
+    .status.offline .status-dot {
+      background: #F44336;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      padding: 12px;
+      background: white;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      background: #e0e0e0;
+      color: #333;
+    }
+
+    .btn:hover {
+      background: #d0d0d0;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 12px;
+      background: white;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #666;
+      text-transform: uppercase;
+    }
+
+    .notifications {
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 8px;
+      background: white;
+    }
+
+    .notification-item {
+      padding: 10px;
+      margin-bottom: 8px;
+      background: #f9f9f9;
+      border-radius: 6px;
+      border-left: 3px solid #667eea;
+    }
+
+    .notification-item.success {
+      border-left-color: #4CAF50;
+    }
+
+    .notification-item.error {
+      border-left-color: #F44336;
+    }
+
+    .notification-item.warning {
+      border-left-color: #FF9800;
+    }
+
+    .notification-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .notification-title {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .notification-time {
+      font-size: 11px;
+      color: #999;
+    }
+
+    .notification-message {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .notification-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: all 0.2s;
+    }
+
+    .delete-btn:hover {
+      background: #fee;
+      color: #e53e3e;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+
+    .server-info {
+      padding: 12px;
+      background: #fff3cd;
+      border-top: 1px solid #ffc107;
+      font-size: 11px;
+      color: #856404;
+      text-align: center;
+    }
+
+    .server-info code {
+      background: rgba(0,0,0,0.1);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">Claude Monitor</div>
+    <div class="status" id="status">
+      <span class="status-dot"></span>
+      <span id="statusText">Checking...</span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="testBtn">Test</button>
+    <button class="btn" id="markReadBtn">Mark Read</button>
+    <button class="btn" id="clearBtn">Clear All</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat-item">
+      <div class="stat-value" id="totalCount">0</div>
+      <div class="stat-label">Total</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value" id="todayCount">0</div>
+      <div class="stat-label">Today</div>
+    </div>
+  </div>
+
+  <div class="notifications" id="notifications">
+    <div class="empty-state">No notifications yet</div>
+  </div>
+
+  <div class="server-info">
+    Server: <code id="serverUrl">http://127.0.0.1:8765</code>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

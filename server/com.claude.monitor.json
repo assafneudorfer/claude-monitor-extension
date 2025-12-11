@@ -1,0 +1,9 @@
+{
+  "name": "com.claude.monitor",
+  "description": "Claude Monitor Native Messaging Host",
+  "path": "/Users/Assaf/vibe_apps/claude-monitor-extension/server/native_host.py",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://EXTENSION_ID_PLACEHOLDER/"
+  ]
+}
